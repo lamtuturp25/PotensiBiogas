@@ -102,29 +102,7 @@
       min-width: 300px;
       font-size: 13px;
       z-index: 10000;
-      pointer-events: none;
-    }
-    
-    .ol-popup-closer {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #666;
-      padding: 0;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       pointer-events: auto;
-    }
-    
-    .ol-popup-closer:hover {
-      color: #000;
     }
     
     #popup-content h3 {
@@ -172,7 +150,7 @@
 <body>
   <div id="app-container">
     <div id="sidebar">
-      <h1>Peta Potensi dan Kesesuaian Fasilitas Biogas Rev</h1>
+      <h1>Peta Potensi dan Kesesuaian Fasilitas Biogas</h1>
 
       <div class="layer-section">
         <h2>Pilih Layer</h2>
@@ -245,7 +223,6 @@
 
     <div id="map">
       <div id="popup" class="ol-popup" style="display: none;">
-        <button id="popup-closer" class="ol-popup-closer" aria-label="Tutup popup">×</button>
         <div id="popup-content"></div>
       </div>
     </div>
@@ -315,7 +292,6 @@
       // Setup popup
       const popupContainer = document.getElementById('popup');
       const popupContent = document.getElementById('popup-content');
-      const popupCloser = document.getElementById('popup-closer');
 
       const overlay = new ol.Overlay({
         element: popupContainer,
@@ -326,19 +302,19 @@
       });
       map.addOverlay(overlay);
 
-      popupCloser.addEventListener('click', function(evt) {
-        evt.preventDefault();
-        overlay.setPosition(undefined);
-        popupContainer.style.display = 'none';
-        return false;
-      });
-
       function safeValue(value, decimalPlaces = 2) {
         if (value === null || typeof value === 'undefined' || value === '') return '-';
         if (typeof value === 'number') return value.toFixed(decimalPlaces);
         const num = parseFloat(value);
         if (!isNaN(num)) return num.toFixed(decimalPlaces);
         return value;
+      }
+
+      function capitalizeKabupaten(name) {
+        if (!name) return 'Tidak diketahui';
+        return name.toLowerCase().split(' ').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
       }
 
       // Click event untuk popup
@@ -356,11 +332,11 @@
             
             if (activeLayer === 'potensi') {
               // Popup untuk Potensi Biogas
-              const namaKabupaten = props['nmkab'] || props['NAMOBJ'] || props['WADMKK'] || 'Tidak diketahui';
+              const namaKabupaten = capitalizeKabupaten(props['nmkab'] || props['NAMOBJ'] || props['WADMKK']);
               const potensiBiogas = props['Potensi Bi'] || props['Potensi_Bi'] || '-';
               
               content = `
-                <h3>Nama Kabupaten: ${safeValue(namaKabupaten)}</h3>
+                <h3>Nama Kabupaten: ${namaKabupaten}</h3>
                 <hr>
                 <table class="popup-table">
                   <tr><td>Potensi Biogas (KWh)</td><td>: ${safeValue(potensiBiogas, 0)}</td></tr>
@@ -368,15 +344,15 @@
               `;
             } else if (activeLayer === 'kesesuaian') {
               // Popup untuk Indeks Kesesuaian
-              const namaKabupaten = props['nmkab'] || props['NAMOBJ'] || props['WADMKK'] || 'Tidak diketahui';
+              const namaKabupaten = capitalizeKabupaten(props['nmkab'] || props['NAMOBJ'] || props['WADMKK']);
               const indeks = props['Indeks'] || props['Indeks Ide'] || '-';
-              const potensi1 = props['Potensi_1'] || '-';
+              const potensi1 = props['Potensi_1'] || props['Potensi _1'] || '-';
               const dimensiAK = props['Dimensi Ak'] || '-';
               const kedekatan = props['Kedekatan'] || '-';
               const aspekSosi = props['Aspek Sosi'] || '-';
               
               content = `
-                <h3>Nama Kabupaten: ${safeValue(namaKabupaten)}</h3>
+                <h3>Nama Kabupaten: ${namaKabupaten}</h3>
                 <h4>Indeks Kesesuaian Fasilitas Biogas: ${safeValue(indeks)}</h4>
                 <hr>
                 <table class="popup-table">
