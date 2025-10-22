@@ -310,6 +310,15 @@
         return value;
       }
 
+      function formatPotensiBiogas(value) {
+        if (value === null || typeof value === 'undefined' || value === '') return '-';
+        const num = parseFloat(value);
+        if (isNaN(num)) return value;
+        // Konversi ke jutaan KWh
+        const jutaan = num / 1000000;
+        return jutaan.toFixed(2) + ' Juta KWh';
+      }
+
       function capitalizeKabupaten(name) {
         if (!name) return 'Tidak diketahui';
         return name.toLowerCase().split(' ').map(word => 
@@ -333,13 +342,13 @@
             if (activeLayer === 'potensi') {
               // Popup untuk Potensi Biogas
               const namaKabupaten = capitalizeKabupaten(props['nmkab'] || props['NAMOBJ'] || props['WADMKK']);
-              const potensiBiogas = props['Potensi Bi'] || props['Potensi_Bi'] || '-';
+              const potensiBiogasRaw = props['Potensi Bi'] || props['Potensi_Bi'] || '-';
               
               content = `
-                <h3>Nama Kabupaten: ${namaKabupaten}</h3>
+                <h3>Nama Kabupaten/Kota: ${namaKabupaten}</h3>
                 <hr>
                 <table class="popup-table">
-                  <tr><td>Potensi Biogas (KWh)</td><td>: ${safeValue(potensiBiogas, 0)}</td></tr>
+                  <tr><td>Potensi Biogas</td><td>: ${formatPotensiBiogas(potensiBiogasRaw)}</td></tr>
                 </table>
               `;
             } else if (activeLayer === 'kesesuaian') {
@@ -352,7 +361,7 @@
               const aspekSosi = props['Aspek Sosi'] || '-';
               
               content = `
-                <h3>Nama Kabupaten: ${namaKabupaten}</h3>
+                <h3>Nama Kabupaten/Kota: ${namaKabupaten}</h3>
                 <h4>Indeks Kesesuaian Fasilitas Biogas: ${safeValue(indeks)}</h4>
                 <hr>
                 <table class="popup-table">
