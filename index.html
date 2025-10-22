@@ -355,32 +355,32 @@
             
             if (activeLayer === 'potensi') {
               // Popup untuk Potensi Biogas
-              const namaKabupaten = props['NAMOBJ'] || props['WADMKK'] || props['Nama'] || 'Tidak diketahui';
-              const potensiBiogas = props['Potensi Bi'] || props['Potensi_Bi'] || props['POTENSI'] || '-';
+              const namaKabupaten = props['nmkab'] || props['NAMOBJ'] || props['WADMKK'] || 'Tidak diketahui';
+              const potensiBiogas = props['Potensi Bi'] || props['Potensi_Bi'] || '-';
               
               content = `
                 <h3>${safeValue(namaKabupaten)}</h3>
                 <hr>
                 <table class="popup-table">
-                  <tr><td>Potensi Biogas (KWh)</td><td>: ${safeValue(potensiBiogas)}</td></tr>
+                  <tr><td>Potensi Biogas (KWh)</td><td>: ${safeValue(potensiBiogas, 0)}</td></tr>
                 </table>
               `;
             } else if (activeLayer === 'kesesuaian') {
               // Popup untuk Indeks Kesesuaian
-              const namaKabupaten = props['NAMOBJ'] || props['WADMKK'] || props['Nama'] || 'Tidak diketahui';
-              const indeks = props['Indeks'] || props['INDEKS'] || '-';
-              const potensi1 = props['Potensi_1'] || props['POTENSI_1'] || '-';
-              const dimensiAK = props['Dimensi AK'] || props['DIMENSI_AK'] || props['Aksesibilitas'] || '-';
-              const kedekatan = props['Kedekatan'] || props['KEDEKATAN'] || '-';
-              const aspekSosi = props['Aspek Sosi'] || props['ASPEK_SOSI'] || props['Sosial'] || '-';
+              const namaKabupaten = props['nmkab'] || props['NAMOBJ'] || props['WADMKK'] || 'Tidak diketahui';
+              const indeks = props['Indeks'] || props['Indeks Ide'] || '-';
+              const potensi1 = props['Potensi_1'] || '-';
+              const dimensiAK = props['Dimensi Ak'] || '-';
+              const kedekatan = props['Kedekatan'] || '-';
+              const aspekSosi = props['Aspek Sosi'] || '-';
               
               content = `
                 <h3>${safeValue(namaKabupaten)}</h3>
                 <h4>Indeks: ${safeValue(indeks)}</h4>
                 <hr>
                 <table class="popup-table">
-                  <tr><td>Dimensi Potensi Biogas</td><td>: ${safeValue(Potensi_1)}</td></tr>
-                  <tr><td>Dimensi Aksesibilitas dan Infrastruktur</td><td>: ${safeValue(DimensiAK)}</td></tr>
+                  <tr><td>Dimensi Potensi Biogas</td><td>: ${safeValue(potensi1)}</td></tr>
+                  <tr><td>Dimensi Aksesibilitas dan Infrastruktur</td><td>: ${safeValue(dimensiAK)}</td></tr>
                   <tr><td>Dimensi Kedekatan Dengan Demand Center</td><td>: ${safeValue(kedekatan)}</td></tr>
                   <tr><td>Dimensi Sosial Ekonomi</td><td>: ${safeValue(aspekSosi)}</td></tr>
                 </table>
