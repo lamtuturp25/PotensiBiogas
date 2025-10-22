@@ -102,7 +102,7 @@
       min-width: 300px;
       font-size: 13px;
       z-index: 10000;
-      pointer-events: auto;
+      pointer-events: none;
     }
     
     .ol-popup-closer {
@@ -111,15 +111,16 @@
       right: 12px;
       background: none;
       border: none;
-      font-size: 18px;
+      font-size: 20px;
       cursor: pointer;
       color: #666;
       padding: 0;
-      width: 20px;
-      height: 20px;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
+      pointer-events: auto;
     }
     
     .ol-popup-closer:hover {
@@ -171,7 +172,7 @@
 <body>
   <div id="app-container">
     <div id="sidebar">
-      <h1>Peta Potensi dan Kesesuaian Fasilitas Biogas</h1>
+      <h1>Peta Potensi dan Kesesuaian Fasilitas Biogas Rev</h1>
 
       <div class="layer-section">
         <h2>Pilih Layer</h2>
@@ -359,7 +360,7 @@
               const potensiBiogas = props['Potensi Bi'] || props['Potensi_Bi'] || '-';
               
               content = `
-                <h3>${safeValue(namaKabupaten)}</h3>
+                <h3>Nama Kabupaten: ${safeValue(namaKabupaten)}</h3>
                 <hr>
                 <table class="popup-table">
                   <tr><td>Potensi Biogas (KWh)</td><td>: ${safeValue(potensiBiogas, 0)}</td></tr>
@@ -375,8 +376,8 @@
               const aspekSosi = props['Aspek Sosi'] || '-';
               
               content = `
-                <h3>${safeValue(namaKabupaten)}</h3>
-                <h4>Indeks: ${safeValue(indeks)}</h4>
+                <h3>Nama Kabupaten: ${safeValue(namaKabupaten)}</h3>
+                <h4>Indeks Kesesuaian Fasilitas Biogas: ${safeValue(indeks)}</h4>
                 <hr>
                 <table class="popup-table">
                   <tr><td>Dimensi Potensi Biogas</td><td>: ${safeValue(potensi1)}</td></tr>
