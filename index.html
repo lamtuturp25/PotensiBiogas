@@ -316,7 +316,8 @@
         if (isNaN(num)) return value;
         // Konversi ke jutaan KWh
         const jutaan = num / 1000000;
-        return jutaan.toFixed(2) + ' Juta KWh';
+        // Format dengan titik untuk ribuan dan koma untuk desimal
+        return jutaan.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Juta KWh';
       }
 
       function capitalizeKabupaten(name) {
