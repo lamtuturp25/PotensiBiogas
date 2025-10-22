@@ -1,64 +1,441 @@
 <!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
-        <meta name="mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="stylesheet" href="./resources/ol.css">
-        <link rel="stylesheet" href="resources/fontawesome-all.min.css">
-        <link href="resources/photon-geocoder-autocomplete.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="./resources/ol-layerswitcher.css">
-        <link rel="stylesheet" href="./resources/qgis2web.css">
-        <style>
-        html, body {
-            background-color: #ffffff;
-        }
-        .ol-control > * {
-            background-color: #f8f8f8!important;
-            color: #444444!important;
-            border-radius: 0px;
-        }
-        .ol-attribution a, .gcd-gl-input::placeholder, .search-layer-input-search::placeholder {
-            color: #444444!important;
-        }
-        .search-layer-input-search {
-            background-color: #f8f8f8!important;
-        }
-        .ol-control > *:focus, .ol-control >*:hover {
-            background-color: rgba(248, 248, 248, 0.7)!important;
-        } 
-        .ol-control {
-            background-color: rgba(255,255,255,.4) !important;
-            padding: 2px !important;
-        } 
-        </style>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <link rel="stylesheet" href="./resources/ol.css">
+  <link rel="stylesheet" href="resources/fontawesome-all.min.css">
+  <link rel="stylesheet" href="./resources/qgis2web.css">
 
-        <style>
-        #map {
-            width: 705px;
-            height: 744px;
-        }
-        </style>
-        <title></title>
-    </head>
-    <body>
-        <div id="map">
-            <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-                <div id="popup-content"></div>
-            </div>
+  <style>
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      overflow: hidden;
+    }
+    #app-container {
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+    #sidebar {
+      width: 320px;
+      flex-shrink: 0;
+      background-color: #f8f9fa;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      z-index: 1000;
+    }
+    #map {
+      flex-grow: 1;
+      height: 100%;
+    }
+    #sidebar h1 {
+      font-size: 20px;
+      color: #333;
+      margin-top: 0;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+    .layer-section, .legend-section {
+      margin-bottom: 25px;
+    }
+    .layer-section h2, .legend-section h2 {
+      font-size: 16px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+    }
+    .layer-toggle {
+      margin-bottom: 12px;
+    }
+    .layer-toggle label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    .layer-toggle label:hover {
+      background-color: #e9ecef;
+    }
+    .layer-toggle input[type="radio"] {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border: 1px solid #888;
+      border-radius: 3px;
+    }
+    .legend-content {
+      display: none;
+    }
+    .legend-content.active {
+      display: block;
+    }
+
+    /* --- STYLE POPUP --- */
+    .ol-popup {
+      position: absolute;
+      background-color: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      padding: 15px 18px;
+      border-radius: 8px;
+      border: 1px solid #cccccc;
+      min-width: 300px;
+      font-size: 13px;
+      z-index: 10000;
+      pointer-events: auto;
+    }
+    
+    .ol-popup-closer {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ol-popup-closer:hover {
+      color: #000;
+    }
+    
+    #popup-content h3 {
+      margin: 0 0 2px 0;
+      font-size: 16px;
+      color: #000;
+      padding-right: 25px;
+    }
+    #popup-content h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #555;
+      font-weight: normal;
+    }
+    #popup-content hr {
+      border: 0;
+      border-top: 1px solid #eee;
+      margin: 10px 0;
+    }
+    .popup-table { 
+      width: 100%; 
+      border-spacing: 0; 
+      margin-bottom: 10px;
+    }
+    .popup-table td { 
+      padding: 4px 0; 
+      vertical-align: top; 
+      font-size: 13px;
+    }
+    .popup-table td:first-child {
+      font-weight: 500;
+      color: #333;
+      width: 180px;
+    }
+
+    /* small screens: make popup narrower */
+    @media (max-width: 420px) {
+      .ol-popup { min-width: 200px; font-size: 12px; }
+      .popup-table td:first-child { width: 140px; }
+      #sidebar { width: 300px; }
+    }
+  </style>
+  <title>Peta Potensi dan Kesesuaian Fasilitas Biogas</title>
+</head>
+<body>
+  <div id="app-container">
+    <div id="sidebar">
+      <h1>Peta Potensi dan Kesesuaian Fasilitas Biogas</h1>
+
+      <div class="layer-section">
+        <h2>Pilih Layer</h2>
+        <div class="layer-toggle">
+          <label>
+            <input type="radio" name="layer" value="potensi" checked>
+            <span>Potensi Biogas (KWh)</span>
+          </label>
         </div>
-        <script src="resources/qgis2web_expressions.js"></script>
-        <script src="./resources/functions.js"></script>
-        <script src="./resources/ol.js"></script>
-        <script src="./resources/ol-layerswitcher.js"></script>
-        <script src="resources/photon-geocoder-autocomplete.min.js"></script>
-        <script src="layers/IndeksIndentifikasiKesesuaianFasilitasBiogas_1.js"></script><script src="layers/PotensiBiogasKWh_2.js"></script>
-        <script src="styles/IndeksIndentifikasiKesesuaianFasilitasBiogas_1_style.js"></script><script src="styles/PotensiBiogasKWh_2_style.js"></script>
-        <script src="./layers/layers.js" type="text/javascript"></script> 
-        <script src="./resources/Autolinker.min.js"></script>
-        <script src="./resources/qgis2web.js"></script>
-    </body>
+        <div class="layer-toggle">
+          <label>
+            <input type="radio" name="layer" value="kesesuaian">
+            <span>Indeks Kesesuaian Fasilitas Biogas</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <h2>Legend</h2>
+        
+        <!-- Legend untuk Potensi Biogas -->
+        <div id="legend-potensi" class="legend-content active">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #ffffcc;"></div>
+            <span>Rendah</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #a1dab4;"></div>
+            <span>Sedang</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #41b6c4;"></div>
+            <span>Tinggi</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #2c7fb8;"></div>
+            <span>Sangat Tinggi</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #253494;"></div>
+            <span>Ekstrem Tinggi</span>
+          </div>
+        </div>
+
+        <!-- Legend untuk Indeks Kesesuaian -->
+        <div id="legend-kesesuaian" class="legend-content">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #d7191c;"></div>
+            <span>Sangat Rendah</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #fdae61;"></div>
+            <span>Rendah</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #ffffbf;"></div>
+            <span>Sedang</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #a6d96a;"></div>
+            <span>Tinggi</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #1a9641;"></div>
+            <span>Sangat Tinggi</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="map">
+      <div id="popup" class="ol-popup" style="display: none;">
+        <button id="popup-closer" class="ol-popup-closer" aria-label="Tutup popup">×</button>
+        <div id="popup-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script imports dari qgis2web -->
+  <script src="resources/qgis2web_expressions.js"></script>
+  <script src="./resources/functions.js"></script>
+  <script src="./resources/ol.js"></script>
+  <script src="./resources/ol-layerswitcher.js"></script>
+  
+  <!-- Layer scripts -->
+  <script src="layers/IndeksIndentifikasiKesesuaianFasilitasBiogas_1.js"></script>
+  <script src="layers/PotensiBiogasKWh_2.js"></script>
+  
+  <!-- Style scripts -->
+  <script src="styles/IndeksIndentifikasiKesesuaianFasilitasBiogas_1_style.js"></script>
+  <script src="styles/PotensiBiogasKWh_2_style.js"></script>
+  
+  <script src="./layers/layers.js" type="text/javascript"></script>
+  <script src="./resources/Autolinker.min.js"></script>
+  <script src="./resources/qgis2web.js"></script>
+  
+  <script>
+    function initializeCustomFeatures() {
+      console.log("Peta Biogas siap. Memulai skrip kustom.");
+
+      // Referensi ke layers
+      let potensiLayer = null;
+      let kesesuaianLayer = null;
+
+      // Cari layers dari map
+      map.getLayers().forEach(layer => {
+        const title = layer.get('title');
+        if (title && title.includes('PotensiBiogas')) {
+          potensiLayer = layer;
+        } else if (title && title.includes('IndeksIndentifikasiKesesuaian')) {
+          kesesuaianLayer = layer;
+        }
+      });
+
+      // Set initial visibility
+      if (potensiLayer) potensiLayer.setVisible(true);
+      if (kesesuaianLayer) kesesuaianLayer.setVisible(false);
+
+      // Layer toggle functionality
+      const layerRadios = document.querySelectorAll('input[name="layer"]');
+      const legendPotensi = document.getElementById('legend-potensi');
+      const legendKesesuaian = document.getElementById('legend-kesesuaian');
+
+      layerRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'potensi') {
+            if (potensiLayer) potensiLayer.setVisible(true);
+            if (kesesuaianLayer) kesesuaianLayer.setVisible(false);
+            legendPotensi.classList.add('active');
+            legendKesesuaian.classList.remove('active');
+          } else if (this.value === 'kesesuaian') {
+            if (potensiLayer) potensiLayer.setVisible(false);
+            if (kesesuaianLayer) kesesuaianLayer.setVisible(true);
+            legendPotensi.classList.remove('active');
+            legendKesesuaian.classList.add('active');
+          }
+        });
+      });
+
+      // Setup popup
+      const popupContainer = document.getElementById('popup');
+      const popupContent = document.getElementById('popup-content');
+      const popupCloser = document.getElementById('popup-closer');
+
+      const overlay = new ol.Overlay({
+        element: popupContainer,
+        autoPan: true,
+        autoPanAnimation: { duration: 250 },
+        positioning: 'bottom-center',
+        offset: [0, -10]
+      });
+      map.addOverlay(overlay);
+
+      popupCloser.addEventListener('click', function(evt) {
+        evt.preventDefault();
+        overlay.setPosition(undefined);
+        popupContainer.style.display = 'none';
+        return false;
+      });
+
+      function safeValue(value, decimalPlaces = 2) {
+        if (value === null || typeof value === 'undefined' || value === '') return '-';
+        if (typeof value === 'number') return value.toFixed(decimalPlaces);
+        const num = parseFloat(value);
+        if (!isNaN(num)) return num.toFixed(decimalPlaces);
+        return value;
+      }
+
+      // Click event untuk popup
+      map.on('singleclick', function(evt) {
+        const feature = map.forEachFeatureAtPixel(evt.pixel, function(f) {
+          return f;
+        });
+
+        if (feature) {
+          try {
+            const props = feature.getProperties();
+            const activeLayer = document.querySelector('input[name="layer"]:checked').value;
+            
+            let content = '';
+            
+            if (activeLayer === 'potensi') {
+              // Popup untuk Potensi Biogas
+              const namaKabupaten = props['NAMOBJ'] || props['WADMKK'] || props['Nama'] || 'Tidak diketahui';
+              const potensiBiogas = props['Potensi Bi'] || props['Potensi_Bi'] || props['POTENSI'] || '-';
+              
+              content = `
+                <h3>${safeValue(namaKabupaten)}</h3>
+                <hr>
+                <table class="popup-table">
+                  <tr><td>Potensi Biogas (KWh)</td><td>: ${safeValue(potensiBiogas)}</td></tr>
+                </table>
+              `;
+            } else if (activeLayer === 'kesesuaian') {
+              // Popup untuk Indeks Kesesuaian
+              const namaKabupaten = props['NAMOBJ'] || props['WADMKK'] || props['Nama'] || 'Tidak diketahui';
+              const indeks = props['Indeks'] || props['INDEKS'] || '-';
+              const potensi1 = props['Potensi_1'] || props['POTENSI_1'] || '-';
+              const dimensiAK = props['Dimensi AK'] || props['DIMENSI_AK'] || props['Aksesibilitas'] || '-';
+              const kedekatan = props['Kedekatan'] || props['KEDEKATAN'] || '-';
+              const aspekSosi = props['Aspek Sosi'] || props['ASPEK_SOSI'] || props['Sosial'] || '-';
+              
+              content = `
+                <h3>${safeValue(namaKabupaten)}</h3>
+                <h4>Indeks: ${safeValue(indeks)}</h4>
+                <hr>
+                <table class="popup-table">
+                  <tr><td>Dimensi Potensi Biogas</td><td>: ${safeValue(potensi1)}</td></tr>
+                  <tr><td>Dimensi Aksesibilitas dan Infrastruktur</td><td>: ${safeValue(dimensiAK)}</td></tr>
+                  <tr><td>Dimensi Kedekatan Dengan Demand Center</td><td>: ${safeValue(kedekatan)}</td></tr>
+                  <tr><td>Dimensi Sosial Ekonomi</td><td>: ${safeValue(aspekSosi)}</td></tr>
+                </table>
+              `;
+            }
+
+            popupContent.innerHTML = content;
+            popupContainer.style.display = 'block';
+            overlay.setPosition(evt.coordinate);
+
+          } catch (err) {
+            console.error("Error saat membuat konten popup:", err);
+          }
+        } else {
+          overlay.setPosition(undefined);
+          popupContainer.style.display = 'none';
+        }
+      });
+
+      // Hover effect
+      let hoveredFeature = null;
+      const hoverStyle = new ol.style.Style({
+        stroke: new ol.style.Stroke({ color: 'rgba(255, 255, 0, 1.0)', width: 3 }),
+        fill: new ol.style.Fill({ color: 'rgba(255, 255, 0, 0.3)' })
+      });
+
+      map.on('pointermove', function(e) {
+        if (e.dragging) return;
+
+        const featureAtPixel = map.forEachFeatureAtPixel(e.pixel, function(f) {
+          return f;
+        });
+
+        if (hoveredFeature && hoveredFeature !== featureAtPixel) {
+          hoveredFeature.setStyle(undefined);
+          hoveredFeature = null;
+        }
+        if (featureAtPixel && featureAtPixel !== hoveredFeature) {
+          featureAtPixel.setStyle(hoverStyle);
+          hoveredFeature = featureAtPixel;
+        }
+
+        map.getTargetElement().style.cursor = hoveredFeature ? 'pointer' : '';
+      });
+
+    }
+
+    // Tunggu sampai semua variabel dan objek siap
+    const mapReadyCheck = setInterval(function() {
+      if (typeof map !== 'undefined' && 
+          typeof ol !== 'undefined') {
+        clearInterval(mapReadyCheck);
+        initializeCustomFeatures();
+      }
+    }, 50);
+  </script>
+</body>
 </html>
